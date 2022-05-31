@@ -1,0 +1,23 @@
+{
+	"type": "module",
+	"name": "snahp-mega-gen",
+	"version": "1.0.0",
+	"description": "oops",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"keywords": [],
+	"author": "lemons",
+	"license": "Unlicense",
+	"dependencies": {
+		"chalk": "^5.0.1",
+		"chalk-animation": "^2.0.2",
+		"crypto-random-string": "^5.0.0",
+		"figlet-promises": "^1.0.1",
+		"inquirer": "^8.2.4",
+		"node-1smail": "^1.0.3",
+		"node-fetch": "^3.2.4",
+		"ora": "^6.1.0"
+	}
+}
