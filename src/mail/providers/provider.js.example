@@ -1,0 +1,45 @@
+import config from "#util/config.js";
+import create from "#util/generateUsername.js";
+const emails = [];
+
+const generate = async () => {
+	const username = create(
+		config.email.username.length,
+		config.email.username.characters,
+		config.email.username.prefix,
+		config.email.username.suffix
+	);
+	const domain = [
+		"example.com",
+		"example.net",
+	];
+	const email = `${username}@${domain[Math.floor(Math.random() * domain.length)]}`;
+	emails.push(email);
+
+	return {
+		email,
+	};
+};
+
+const getMessageList = async ({ email }) => {
+	const email = emails.find(e => e === email);
+
+	// get messages by email or id yadayada
+	return [{
+		id: 1,
+		subject: "Email",
+	}]
+};
+
+const getMessage = async ({ email }, id) => {
+	const email = emails.find(e => e === email);
+
+	// get the specific message, fetch or using a wrapper
+	return {
+		id,
+		subject: "Email",
+		body: "<h1>HTML body</h1>"
+	}
+}
+
+export { generate, getMessageList, getMessage };

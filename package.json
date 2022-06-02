@@ -1,23 +1,35 @@
 {
-	"type": "module",
-	"name": "snahp-mega-gen",
-	"version": "1.0.0",
-	"description": "oops",
-	"main": "index.js",
-	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1"
-	},
-	"keywords": [],
-	"author": "lemons",
-	"license": "Unlicense",
-	"dependencies": {
-		"chalk": "^5.0.1",
-		"chalk-animation": "^2.0.2",
-		"crypto-random-string": "^5.0.0",
-		"figlet-promises": "^1.0.1",
-		"inquirer": "^8.2.4",
-		"node-1smail": "^1.0.3",
-		"node-fetch": "^3.2.4",
-		"ora": "^6.1.0"
-	}
+  "name": "private-mega-gen",
+  "version": "2.0.0",
+  "type": "module",
+  "description": "a private account generator for mega, powered by megatools.",
+  "main": "index.js",
+  "dependencies": {
+    "@cemalgnlts/mailjs": "^2.0.0",
+    "chalk": "^5.0.1",
+    "chalk-animation": "^2.0.2",
+    "crypto-random-string": "^5.0.0",
+    "developer-mail-com-unofficial": "^1.0.4",
+    "inquirer": "^8.2.4",
+    "node-1smail": "^1.0.3",
+    "node-fetch": "^3.2.5",
+    "ora": "^6.1.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lem6ns/snahp-mega-gen.git"
+  },
+  "author": "lem6ns",
+  "license": "Unlicense",
+  "imports": {
+    "#util/*": "./src/util/*.js",
+    "#mail": "./src/mail/index.js"
+  },
+  "bugs": {
+    "url": "https://github.com/lem6ns/snahp-mega-gen/issues"
+  },
+  "homepage": "https://github.com/lem6ns/snahp-mega-gen#readme"
 }
