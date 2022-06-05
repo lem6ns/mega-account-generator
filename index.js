@@ -1,31 +1,29 @@
 // requirements
 import fetch from 'node-fetch';
-import TempMail from 'node-1smail';
-import cryptoRandomString from 'crypto-random-string';
 import chalk from 'chalk';
 import ora from 'ora';
 import figlet from 'figlet-promises';
 import chalkAnimation from 'chalk-animation';
 import inquirer from 'inquirer';
-import { readFileSync, appendFileSync } from 'fs';
-import { execSync } from 'child_process';
+import { readFileSync } from 'fs';
+import Piscina from 'piscina';
 const config = JSON.parse(readFileSync('./config.json'));
 const availableDomains = await fetch(`https://www.1secmail.com/api/v1/?action=getDomainList`).then(r => r.json());
-const domains = [];
+let domains = [];
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 // intro
 const Figlet = new figlet();
 await Figlet.loadFonts();
 const animation = chalkAnimation.rainbow(`${await Figlet.write("Snahp MEGA Generator", "standard")}
-by lemons`);
-await sleep(3000);
+by lemons
+`, 1);
+await sleep(1500);
 animation.stop();
 
-// actual stuff
+// get domains
 let spinner;
 spinner = ora("Checking valid domains").start();
-// check valid domains
 for (const domain of config.domains) {
 	if (!availableDomains.includes(domain) && domain != "random") {
 		spinner.warn(`${domain} is not available.`);
@@ -33,7 +31,7 @@ for (const domain of config.domains) {
 	};
 
 	if (domain == "random") {
-		domains.push(availableDomains[Math.floor(Math.random() * availableDomains.length)]);
+		domains = availableDomains;
 		continue;
 	} else {
 		domains.push(domain);
@@ -42,53 +40,43 @@ for (const domain of config.domains) {
 };
 spinner.succeed(`Valid domains found: ${domains.join(', ')}`);
 
-// create temp mail
+// create address and pick a random domain
 async function getEmail() {
 	const randomString = Math.random().toString(36).substring(7);
-	const mail = new TempMail();
-	await mail.createAddress(`${config.prefix.email}-${randomString}`, domains[Math.floor(Math.random() * domains.length)]);
-	return mail;
+	return [`${config.prefix.email}-${randomString}`, domains[Math.floor(Math.random() * domains.length)]];
 };
 
-// register and verify mega account
-async function register() {
-	try {
-		// register
-		const randomString = Math.random().toString(36).substring(7);
-		const name = `${config.prefix.name}${randomString}`;
-		const email = await getEmail();
-		const password = cryptoRandomString({
-			length: config.password.length,
-			type: config.password.type
-		});
-		const output = execSync(`megatools reg --register --scripted -n "${name}" -e "${email.getAddress()}" -p "${password}"`, { encoding: 'utf-8', stdio: ["ignore", "pipe", "pipe"] });
-		const verifyCommand = output.split("\n")[0].slice(0, -1);
-		
-		// verify
-		spinner = ora("Registering and Verifying MEGA Account").start();
-		const { messages } = await email.getMessages(10000);
-		const { id } = messages[0];
-		const message = await email.getOneMessage(id);
-		const link = message.textBody.split("\n\n").find(part => part.includes("https")).trim();
-		execSync(verifyCommand.replace("@LINK@", link), { stdio: "ignore" });
-		appendFileSync(config.savePath, `${email.getAddress()}:${password}\n`);
-	} catch (e) {
-		spinner.fail(`Account creation/verification failed. (${e})`);
-	};
-	spinner.succeed(`Account created & verified! Saved details to ${config.savePath}.`);
-}
-
+// prompt user
 inquirer
 	.prompt([{
 		type: 'input',
 		name: "amount",
 		message: "How many accounts do you want to create?",
+		validate(value) {
+			if (isNaN(value)) {
+				return "Please enter a number.";
+			};
+
+			return true;
+		},
+		default: 1
+	}, {
+		type: "confirm",
+		name: "which",
+		message: "Are you using Mimccann's MegaKeep?",
+		default: false
 	}])
 	.then(async answers => {
-		const spinner = ora("Creating accounts\n\n").start();
+		const pool = new Piscina({
+			filename: './worker.js',
+			maxQueue: config.concurrency,
+		});
+		const accountArray = [];
+		const spinner2 = ora(`Creating account(s).\n\n`).start();
 		for (let i = 0; i < answers.amount; i++) {
-			console.log(`${chalk.green("?")} Creating account ${chalk.bold(chalk.blueBright(i+1))} of ${answers.amount}`);
-			await register();
+			while (pool.maxQueue == answers.amount) await sleep(100);
+			accountArray.push(pool.run([await getEmail(), answers.which]));
 		};
-		spinner.succeed(`Accounts created!`);
+
+		spinner2.succeed(`Account(s) created.`);
 	})
