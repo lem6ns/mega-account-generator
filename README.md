@@ -1,4 +1,4 @@
-# snahp mega gen
+# mega account gen
 a private account generator for mega
 
 ## prerequisites
@@ -6,5 +6,6 @@ a private account generator for mega
 - [megatools](https://megatools.megous.com/)
 
 ## usage
+- `npm i`
 - `node index.js`
 - follow on-screen instructions

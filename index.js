@@ -5,20 +5,20 @@ import ora from 'ora';
 import figlet from 'figlet-promises';
 import chalkAnimation from 'chalk-animation';
 import inquirer from 'inquirer';
-import { readFileSync } from 'fs';
 import Piscina from 'piscina';
+import { readFileSync } from 'fs';
 const config = JSON.parse(readFileSync('./config.json'));
 const availableDomains = await fetch(`https://www.1secmail.com/api/v1/?action=getDomainList`).then(r => r.json());
-let domains = [];
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+let domains = [];
 
 // intro
 const Figlet = new figlet();
 await Figlet.loadFonts();
 const animation = chalkAnimation.rainbow(`${await Figlet.write("MEGA Account Generator", "standard")}
 by lemons
-`, 1);
-await sleep(1500);
+`, 100);
+await sleep(1000);
 animation.stop();
 
 // get domains
@@ -71,17 +71,17 @@ inquirer
 			filename: './worker.js',
 			maxQueue: config.concurrency,
 		});
-		const accountArray = [];
-		const spinner2 = ora(`Creating account(s).\n\n`).start();
+		const spinner2 = ora(`Creating account ${chalk.bold(chalk.blueBright(1))} of ${answers.amount}\n\n`).start();
+		let accounts = 0;
 		for (let i = 0; i < answers.amount; i++) {
-			console.log(i, pool.queueSize, config.concurrency)
-			if (pool.queueSize == config.concurrency) { 
-				while (pool.queueSize == config.concurrency) { 
-					await sleep(1000);
-				}
+			while (pool.queueSize == config.concurrency) {
+				await sleep(100);
 			}
-			accountArray.push(pool.run([await getEmail(), answers.which]));
+			pool.run([await getEmail(), answers.which])
+				.then(() => {
+					accounts++;
+					if (accounts == answers.amount) return spinner2.succeed(`Created ${answers.amount == 1 ? "an account." : `all ${answers.amount} accounts.`}\n\n`);
+					spinner2.text = `Creating account ${chalk.bold(chalk.blueBright(accounts))} of ${answers.amount}\n\n`;
+				})
 		};
-
-		spinner2.succeed(`Account(s) created.`);
 	})
