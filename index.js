@@ -72,7 +72,7 @@ inquirer
 			maxQueue: config.concurrency,
 		});
 		const spinner2 = ora(`Creating account ${chalk.bold(chalk.blueBright(1))} of ${answers.amount}\n\n`).start();
-		let accounts = 0;
+		let accounts = 1;
 		for (let i = 0; i < answers.amount; i++) {
 			while (pool.queueSize == config.concurrency) {
 				await sleep(100);
