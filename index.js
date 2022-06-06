@@ -15,7 +15,7 @@ const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 // intro
 const Figlet = new figlet();
 await Figlet.loadFonts();
-const animation = chalkAnimation.rainbow(`${await Figlet.write("Snahp MEGA Generator", "standard")}
+const animation = chalkAnimation.rainbow(`${await Figlet.write("MEGA Account Generator", "standard")}
 by lemons
 `, 1);
 await sleep(1500);
@@ -74,7 +74,12 @@ inquirer
 		const accountArray = [];
 		const spinner2 = ora(`Creating account(s).\n\n`).start();
 		for (let i = 0; i < answers.amount; i++) {
-			while (pool.maxQueue == answers.amount) await sleep(100);
+			console.log(i, pool.queueSize, config.concurrency)
+			if (pool.queueSize == config.concurrency) { 
+				while (pool.queueSize == config.concurrency) { 
+					await sleep(1000);
+				}
+			}
 			accountArray.push(pool.run([await getEmail(), answers.which]));
 		};
 

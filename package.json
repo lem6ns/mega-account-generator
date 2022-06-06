@@ -1,6 +1,6 @@
 {
 	"type": "module",
-	"name": "snahp-mega-gen",
+	"name": "mega-account-generator",
 	"version": "1.0.0",
 	"description": "oops",
 	"main": "index.js",
